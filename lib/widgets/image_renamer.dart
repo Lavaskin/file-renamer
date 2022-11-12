@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_renamer/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
 
 class ImageRenamer extends StatefulWidget {
@@ -96,14 +97,22 @@ class _ImageRenamerState extends State<ImageRenamer> {
                     padding: const EdgeInsets.only(right: 12, left: 12),
                     child: SizedBox(
                       width: 300,
-                      child: TextField(
-                        controller: textEditingController,
-                        autofocus: true,
-                        decoration: const InputDecoration(
-                          hintText: 'New Name...',
-                          border: OutlineInputBorder(),
+                      child: RawKeyboardListener(
+                        focusNode: FocusNode(),
+                        child: TextField(
+                          controller: textEditingController,
+                          autofocus: true,
+                          decoration: const InputDecoration(
+                            hintText: 'New Name...',
+                            border: OutlineInputBorder(),
+                          ),
+                          style: subtextStyle,
                         ),
-                        style: subtextStyle,
+                        onKey: (event) {
+                          if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                            renameFile();
+                          }
+                        },
                       ),
                     ),
                   ),

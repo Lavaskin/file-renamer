@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:file_renamer/constants.dart';
 import 'package:file_renamer/widgets/image_renamer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
 
 class RenamerPage extends StatefulWidget {
@@ -50,6 +51,19 @@ class _RenamerPageState extends State<RenamerPage> {
     currentIndex = correctFiles.length;
   }
 
+  void incrementIndex() {
+    setState(() {
+      currentIndex = (currentIndex + 1) % imageRenamers.length;
+    });
+  }
+
+  void decrementIndex() {
+    setState(() {
+      currentIndex = currentIndex - 1;
+      if (currentIndex < 0) currentIndex = imageRenamers.length - 1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,60 +77,62 @@ class _RenamerPageState extends State<RenamerPage> {
         ),
       ),
       backgroundColor: const Color(0xFF191919),
-      body: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Back Button
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  currentIndex = currentIndex - 1;
-                  if (currentIndex < 0) currentIndex = imageRenamers.length - 1;
-                });
-              },
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all(
-                  const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 24,
+      body: RawKeyboardListener(
+        focusNode: FocusNode(),
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Back Button
+              ElevatedButton(
+                onPressed: decrementIndex,
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
                   ),
+                  backgroundColor:
+                      const MaterialStatePropertyAll<Color>(Color(0xFF0080FF)),
                 ),
-                backgroundColor:
-                    const MaterialStatePropertyAll<Color>(Color(0xFF0080FF)),
+                child: const Icon(Icons.arrow_back),
               ),
-              child: const Icon(Icons.arrow_back),
-            ),
 
-            // Current image
-            Padding(
-              padding: const EdgeInsets.only(left: 32, right: 32),
-              child: imageRenamers[currentIndex],
-            ),
+              // Current image
+              Padding(
+                padding: const EdgeInsets.only(left: 32, right: 32),
+                child: imageRenamers[currentIndex],
+              ),
 
-            // Next Button
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  currentIndex = (currentIndex + 1) % imageRenamers.length;
-                });
-              },
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all(
-                  const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 24,
+              // Next Button
+              ElevatedButton(
+                onPressed: incrementIndex,
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
                   ),
+                  backgroundColor:
+                      const MaterialStatePropertyAll<Color>(Color(0xFF0080FF)),
                 ),
-                backgroundColor:
-                    const MaterialStatePropertyAll<Color>(Color(0xFF0080FF)),
+                child: const Icon(Icons.arrow_forward),
               ),
-              child: const Icon(Icons.arrow_forward),
-            ),
-          ],
+            ],
+          ),
         ),
+        onKey: (event) {
+          // NOTE: Temp disabled as janky
+          // if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+          //   decrementIndex();
+          // } else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+          //   incrementIndex();
+          // }
+        },
       ),
     );
   }
